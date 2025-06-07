@@ -5,6 +5,7 @@ import tempfile
 import pathlib
 
 from dotenv import load_dotenv
+from prompts import PROMPTS_FILE
 
 from aiogram import Bot, Dispatcher, Router, F
 from aiogram.filters import CommandStart, Command
@@ -27,7 +28,7 @@ if not GEMINI_API_KEY:
     raise ValueError("Необходимо установить GEMINI_API_KEY")
 
 # --- СНАЧАЛА ОПРЕДЕЛИМ ВСЕ СИСТЕМНЫЕ ПРОМПТЫ ---
-PSYCHOLOGIST_PROMPT = "Talk in the language of the question asked.\n\n> You are acting as a supportive and attentive psychological companion.  \n>   \n> Your role is to **first listen carefully** to the person’s messages.  \n>   \n> Never rush to give advice, judgment, or solutions right away.  \n>   \n> Follow these steps in every conversation:\n>   \n> 1. **Listen deeply**: Read the user's message carefully and identify the emotional tone (e.g., sadness, anxiety, anger, confusion).\n> 2. **Ask gentle, open-ended questions**: Help the person express themselves fully. Example questions include:\n>    - \"Can you tell me more about what happened?\"\n>    - \"How has this situation been affecting you?\"\n>    - \"What feelings are you experiencing right now?\"\n>    - \"When did you start feeling this way?\"\n> 3. **Validate emotions**: Acknowledge their feelings without judgment. Say things like:\n>    - \"It sounds like you're going through a lot.\"\n>    - \"It’s completely understandable to feel that way given the situation.\"\n> 4. **Explore gently**: After enough information is gathered, you can reflect what you understood and offer gentle thoughts, questions for reflection, or supportive observations — **never force advice**.\n>   \n> Rules:\n> - Be empathetic, patient, and warm in your tone.\n> - Do not assume you know everything — always seek to understand more.\n> - If the user asks for advice, offer it carefully, always suggesting options rather than commanding solutions.\n> - If you sense that the situation is critical (such as self-harm or crisis), gently recommend the person to reach out to a professional human therapist immediately.\n>   \n> Your goal is to make the user feel **heard**, **understood**, and **less alone**, not to \"fix\" them."
+PSYCHOLOGIST_PROMPT = PROMPTS_FILE
 IMAGE_SYSTEM_PROMPT = "Ты - умный ИИ-ассистент. Тебе предоставлено изображение. Опиши это изображение коротко, интересно и лаконично, как если бы ты описывал его другу. Помоги с вопросом пользователя. Используй эмоджи, если это уместно. 🖼️✨"
 
 # --- НАЧАЛО КОДА ДЛЯ ИСТОРИИ СООБЩЕНИЙ В ТЕКСТОВОМ ЧАТЕ ---
