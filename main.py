@@ -12,6 +12,9 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, Voice, PhotoSize
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
+from aiogram import BaseMiddleware 
+from typing import Callable, Dict, Any, Awaitable
+
 
 import google.generativeai as genai
 from google.generativeai.types import generation_types
@@ -37,6 +40,34 @@ TEXT_CHAT_SYSTEM_PROMPT = PSYCHOLOGIST_PROMPT # <--- ИСПОЛЬЗУЕМ ПРО
 
 # 2. Максимальное количество сообщений USER/ASSISTANT в хранимой истории.
 MAX_HISTORY_MESSAGES_IN_LIST = 9
+
+
+class LoggingMiddleware(BaseMiddleware):
+    async def __call__(
+        self,
+        handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]],
+        event: Message,
+        data: Dict[str, Any]
+    ) -> Any:
+        # Получаем информацию о пользователе
+        user = event.from_user
+        user_info = f"ID: {user.id}, Name: {user.full_name}"
+        if user.username:
+            user_info += f", @{user.username}"
+
+        # Получаем информацию о содержимом сообщения
+        content_info = "[Неизвестный тип сообщения]"
+        if event.text:
+            content_info = f"Текст: '{event.text}'"
+        elif event.voice:
+            content_info = f"Голосовое сообщение (длительность: {event.voice.duration}с)"
+        elif event.photo:
+            photo = event.photo[-1]
+            content_info = f"Фото (разрешение: {photo.width}x{photo.height})"
+
+        logging.info(f"Получено сообщение от [{user_info}]. {content_info}")
+
+        return await handler(event, data)
 
 # 3. Глобальный словарь для хранения историй чатов
 chat_histories = {}
@@ -243,6 +274,9 @@ async def main():
     default_properties = DefaultBotProperties(parse_mode=ParseMode.HTML)
     bot = Bot(token=BOT_TOKEN, default=default_properties)
     dp = Dispatcher()
+
+    dp.message.middleware(LoggingMiddleware())
+    
     dp.include_router(router)
     await bot.delete_webhook(drop_pending_updates=True)
     logging.info("Бот запускается...")
