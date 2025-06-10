@@ -1,1 +1,3 @@
 # psihologbot
+
+# telegram bot: BroPsihologBot
